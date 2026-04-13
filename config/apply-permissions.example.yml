@@ -1,0 +1,17 @@
+# Copy to config/apply-permissions.yml when you want durable, per-job approval
+# for role-specific resume tailoring and live application assistance. This file
+# is user-layer data and should stay local only.
+
+default: deny
+
+approved_jobs:
+  - company: Example Company
+    role: Staff AI Engineer
+    url_contains: example.com/jobs/staff-ai-engineer
+    approval: approved
+    approved_at: 2026-04-13
+    permissions:
+      tailor_resume: true
+      assist_application: true
+      final_submit: false
+    notes: Allow job-specific resume tailoring and form-filling assistance, but always stop before final submit.

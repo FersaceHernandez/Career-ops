@@ -4,21 +4,39 @@ Modo interactivo para cuando el candidato está rellenando un formulario de apli
 
 ## Requisitos
 
+- **Permiso explícito por oferta**: Antes de rellenar nada, confirmar que el candidato autorizó ESTA oferta concreta. La autorización puede venir del turno actual o de `config/apply-permissions.yml`.
 - **Mejor con Playwright visible**: En modo visible, el candidato ve el navegador y Claude puede interactuar con la página.
 - **Sin Playwright**: el candidato comparte un screenshot o pega las preguntas manualmente.
+- **Resume tailored si hay upload**: Si el formulario pide CV/resume y no existe una versión específica para esta oferta, generarla con `pdf` antes de seguir.
+- **Nunca enviar**: Este modo puede preparar respuestas y completar campos, pero siempre debe parar antes del click final en Submit/Send/Apply.
 
 ## Workflow
 
 ```
+0. AUTORIZAR   → Confirmar permiso explícito para esta oferta
 1. DETECTAR    → Leer Chrome tab activa (screenshot/URL/título)
 2. IDENTIFICAR → Extraer empresa + rol de la página
 3. BUSCAR      → Match contra reports existentes en reports/
 4. CARGAR      → Leer report completo + Section G (si existe)
 5. COMPARAR    → ¿El rol en pantalla coincide con el evaluado? Si cambió → avisar
 6. ANALIZAR    → Identificar TODAS las preguntas del formulario visibles
-7. GENERAR     → Para cada pregunta, generar respuesta personalizada
-8. PRESENTAR   → Mostrar respuestas formateadas para copy-paste
+7. TAILOR CV   → Si hay upload de CV/resume, preparar el PDF específico para esa oferta
+8. GENERAR     → Para cada pregunta, generar respuesta personalizada
+9. PRESENTAR   → Mostrar respuestas formateadas para copy-paste
+10. PARAR      → Esperar revisión final del candidato antes de cualquier submit
 ```
+
+## Paso 0 — Validar permiso
+
+Antes de tocar el formulario:
+
+1. Extraer empresa + rol + URL visible si ya están disponibles
+2. Revisar si el usuario acaba de dar permiso explícito para esa oferta
+3. Si existe `config/apply-permissions.yml`, comprobar si hay una regla aprobada que haga match con esa empresa/rol/URL
+4. Si la regla define `permissions.tailor_resume` o `permissions.assist_application`, respetar esos flags; si solo existe `approval: approved`, tratarlo como permiso operativo para esa oferta, pero NUNCA como permiso de submit
+5. Si NO hay permiso claro para ayudar con esa oferta, parar y preguntar
+
+**Sin permiso claro = no rellenar nada.**
 
 ## Paso 1 — Detectar la oferta
 
@@ -58,7 +76,18 @@ Clasificar cada pregunta:
 - **Ya respondida en Section G** → adaptar la respuesta existente
 - **Nueva pregunta** → generar respuesta desde el report + cv.md
 
-## Paso 5 — Generar respuestas
+## Paso 5 — Tailor del resume para esta oferta
+
+Si el formulario incluye upload de CV/resume:
+
+1. Buscar en `output/` el PDF más reciente que haga match con empresa + rol
+2. Si no existe un PDF claro, o si el rol cambió, ejecutar el flujo de `pdf` con el JD/contexto actual para generar una versión específica para esta oferta
+3. Confirmar al candidato qué archivo se va a usar
+4. Solo después seguir con el resto del formulario
+
+Generar un resume tailored para la oferta NO autoriza submit final.
+
+## Paso 6 — Generar respuestas
 
 Para cada pregunta, generar la respuesta siguiendo:
 
@@ -92,9 +121,9 @@ Notas:
 - [Sugerencias de personalización que el candidato debería revisar]
 ```
 
-## Paso 6 — Post-apply (opcional)
+## Paso 7 — Post-apply (opcional)
 
-Si el candidato confirma que envió la aplicación:
+Si el candidato confirma que él mismo envió la aplicación:
 1. Actualizar estado en `applications.md` de "Evaluada" a "Aplicado"
 2. Actualizar Section G del report con las respuestas finales
 3. Sugerir siguiente paso: `/career-ops contacto` para LinkedIn outreach

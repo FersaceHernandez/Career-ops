@@ -13,7 +13,7 @@ The portfolio that goes with this system is also open source: [cv-santiago](http
 There are two layers. Read `DATA_CONTRACT.md` for the full list.
 
 **User Layer (NEVER auto-updated, personalization goes HERE):**
-- `cv.md`, `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`
+- `cv.md`, `config/profile.yml`, `config/apply-permissions.yml`, `modes/_profile.md`, `article-digest.md`, `portals.yml`
 - `data/*`, `reports/*`, `output/*`, `interview-prep/*`
 
 **System Layer (auto-updatable, DON'T put user data here):**
@@ -21,6 +21,11 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 - `CLAUDE.md`, `*.mjs` scripts, `dashboard/*`, `templates/*`, `batch/*`
 
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
+
+For permission-gated job actions, store durable per-job approvals in
+`config/apply-permissions.yml`. Use it for role-specific resume tailoring and
+live application assistance. That file is user-layer data and must never be
+treated as a system default.
 
 ## Update Check
 
@@ -183,6 +188,7 @@ This system is designed to be customized by YOU (AI Agent). When the user asks y
 - "Translate the modes to English" → edit all files in `modes/`
 - "Add these companies to my portals" → edit `portals.yml`
 - "Update my profile" → edit `config/profile.yml`
+- "Tailor my resume for this role" → run the `pdf` flow and save a job-specific PDF in `output/` without rewriting canonical `cv.md`
 - "Change the CV template design" → edit `templates/cv-template.html`
 - "Adjust the scoring weights" → edit `modes/_profile.md` for user-specific weighting, or edit `modes/_shared.md` and `batch/batch-prompt.md` only when changing the shared system defaults for everyone
 
@@ -236,6 +242,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 - `cv.md` in project root is the canonical CV
 - `article-digest.md` has detailed proof points (optional)
+- Job-specific tailored resume variants belong in `output/` and should not overwrite `cv.md` unless the user explicitly asks for that
 - **NEVER hardcode metrics** -- read them from these files at evaluation time
 
 ---
@@ -245,6 +252,8 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 **This system is designed for quality, not quantity.** The goal is to help the user find and apply to roles where there is a genuine match -- not to spam companies with mass applications.
 
 - **NEVER submit an application without the user reviewing it first.** Fill forms, draft answers, generate PDFs -- but always STOP before clicking Submit/Send/Apply. The user makes the final call.
+- **Role-specific resume tailoring is allowed when the user explicitly selects that role.** Treat that as permission to create job-specific resume output for that role only. It does not grant permission to fill or submit the application.
+- **Only help with live applications when the user has explicitly approved that specific role.** Use the current conversation or `config/apply-permissions.yml` as the approval source. If there is no clear approval, stop and ask.
 - **Strongly discourage low-fit applications.** If a score is below 4.0/5, explicitly recommend against applying. The user's time and the recruiter's time are both valuable. Only proceed if the user has a specific reason to override the score.
 - **Quality over speed.** A well-targeted application to 5 companies beats a generic blast to 50. Guide the user toward fewer, better applications.
 - **Respect recruiters' time.** Every application a human reads costs someone's attention. Only send what's worth reading.

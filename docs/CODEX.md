@@ -2,6 +2,10 @@
 
 Career-Ops supports Codex through the root `AGENTS.md` file.
 
+The repo also ships a Codex-friendly skill entrypoint at
+`skills/job-search/SKILL.md`. Use it when your Codex client supports
+repo-local skills and you want a single skill file to hand to the agent.
+
 If your Codex client reads project instructions automatically, `AGENTS.md`
 is enough for routing and behavior. Codex should reuse the same checked-in
 mode files, templates, tracker flow, and scripts that already power the
@@ -25,7 +29,9 @@ npx playwright install chromium
 
 - `Evaluate this job URL with Career-Ops and run the full pipeline.`
 - `Scan my configured portals for new roles that match my profile.`
+- `Tailor my resume for this exact position and save the PDF.`
 - `Generate the tailored ATS PDF for this role using Career-Ops.`
+- `Use the repo skill at skills/job-search/SKILL.md and help me tailor this application.`
 
 ## Routing Map
 
@@ -50,7 +56,10 @@ layer.
 ## Behavioral Rules
 
 - Treat raw JD text or a job URL as the full auto-pipeline path unless the user explicitly asks for evaluation only.
+- Treat `tailor my resume for [company/role]` as explicit approval to generate job-specific resume materials for that exact role only.
 - Keep all personalization in `config/profile.yml`, `modes/_profile.md`, `article-digest.md`, or `portals.yml`.
+- For application help, require explicit permission for the specific company/role before filling anything. Store reusable approvals in `config/apply-permissions.yml` if the user wants a durable allowlist.
+- Treat resume-tailoring permission and live application-assist permission as separate capabilities. Tailoring a resume for a role does not imply permission to fill the form, and neither ever implies permission to submit.
 - Never verify a job’s live status with generic web fetch when Playwright is available.
 - Never submit an application for the user.
 - Never add new tracker rows directly to `data/applications.md`; use the TSV addition flow and `merge-tracker.mjs`.

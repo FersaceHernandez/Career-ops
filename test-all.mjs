@@ -142,7 +142,9 @@ const systemFiles = [
   'modes/_shared.md', 'modes/_profile.template.md',
   'modes/oferta.md', 'modes/pdf.md', 'modes/scan.md',
   'templates/states.yml', 'templates/cv-template.html',
+  'config/apply-permissions.example.yml',
   '.claude/skills/career-ops/SKILL.md',
+  'skills/job-search/SKILL.md',
 ];
 
 for (const f of systemFiles) {
@@ -155,7 +157,7 @@ for (const f of systemFiles) {
 
 // Check user files are NOT tracked (gitignored)
 const userFiles = [
-  'config/profile.yml', 'modes/_profile.md', 'portals.yml',
+  'config/profile.yml', 'config/apply-permissions.yml', 'modes/_profile.md', 'portals.yml',
 ];
 for (const f of userFiles) {
   const tracked = run('git', ['ls-files', f]);
